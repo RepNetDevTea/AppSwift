@@ -9,36 +9,28 @@ import Foundation
 import Combine
 import SwiftUI
 
-// SearchState enum se mantiene igual
 enum SearchState {
-    case initial
-    case loading
-    case success([Site])
-    case empty
-    case error(String)
+    case initial, loading, success([Site]), empty, error(String)
 }
 
 @MainActor
 class SearchViewModel: ObservableObject {
 
     private let searchAPIService = SearchAPIService()
-    private let reportsAPIService = ReportsAPIService() // Necesario para construir la lista base si la búsqueda de API falla
+    private let reportsAPIService = ReportsAPIService()
     private let tagsAndImpactsAPIService = TagsAndImpactsAPIService()
 
-    // Almacenes para mapeo
     private var allTags: [Tag] = []
     private var allImpacts: [Impact] = []
 
     @Published var searchQuery = ""
     @Published var state: SearchState = .initial
-    @Published var errorMessage: String? = nil // Usado en el catch
+    @Published var errorMessage: String? = nil
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        Task {
-            await fetchInitialLookups()
-        }
+        Task { await fetchInitialLookups() }
         setupSearchListener()
     }
 
@@ -84,42 +76,29 @@ class SearchViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    // ✨ CORREGIDO: Maneja la respuesta opcional del servicio ✨
     func performSearch(query: String) async {
         state = .loading
         errorMessage = nil
 
         do {
-            // Llama al servicio que ahora devuelve SiteResponseDTO?
             let siteDTO = try await searchAPIService.search(query: query)
-
-            // Si el servicio devolvió un sitio...
             if let foundSiteDTO = siteDTO {
-                // ...lo mapeamos...
                 let site = mapSingleSiteDTOToSite(foundSiteDTO)
-                // ...y lo ponemos en un array para el estado .success.
                 state = .success([site])
             } else {
-                // Si el servicio devolvió nil, significa que no se encontró.
                 state = .empty
             }
-
         } catch APIError.invalidResponse(let statusCode) where statusCode == 500 {
              print("❌ Error 500 en la búsqueda: \(query)")
              state = .error("Error del servidor al buscar. Inténtalo de nuevo.")
         } catch {
             print("❌ Error en la búsqueda: \(error)")
-            state = .error("No se pudieron obtener los resultados.")
+            self.state = .error("No se pudieron obtener los resultados.")
         }
     }
 
-
-    // --- MAPPING LOGIC ---
-
-    // ✨ NUEVO: Helper para mapear UN solo SiteDTO a Site ✨
     private func mapSingleSiteDTOToSite(_ dto: SiteResponseDTO) -> Site {
-        // Mapea los reportes anidados usando la lógica existente
-        let reports = mapReportDTOsToReports(dto.reports)
+        let reports = mapSearchReportDTOsToReports(dto.reports)
         return Site(
             id: dto.id,
             domain: dto.siteDomain,
@@ -128,30 +107,24 @@ class SearchViewModel: ObservableObject {
         )
     }
 
-    // Mapea Report DTOs usando ID lookups (se mantiene igual)
-    private func mapReportDTOsToReports(_ dtos: [ReportResponseDTO]) -> [Report] {
+    private func mapSearchReportDTOsToReports(_ dtos: [SearchReportDTO]) -> [Report] {
         let formatter = ISO8601DateFormatter()
-        guard !allTags.isEmpty, !allImpacts.isEmpty else {
-            print("⚠️ Attempted to map reports before lookups were loaded.")
-            return []
-        }
-        let tagLookup = Dictionary(uniqueKeysWithValues: allTags.map { ($0.id, $0.tagName) })
-        let impactLookup = Dictionary(uniqueKeysWithValues: allImpacts.map { ($0.id, $0.impactName) })
+        // No necesitamos los lookups de ID aquí, los nombres ya vienen
 
         return dtos.map { dto in
             let createdAtDate = formatter.date(from: dto.createdAt) ?? Date()
-
+            
             var score = 0
-            for vote in dto.votes {
-                 if vote.voteType == "upvote" { score += 1 }
-                 else if vote.voteType == "downvote" { score -= 1 }
+            // ✨ CORREGIDO: Maneja 'votes' opcional
+            for vote in dto.votes ?? [] {
+                if vote.voteType == "upvote" { score += 1 }
+                else if vote.voteType == "downvote" { score -= 1 }
             }
-
-            // Mapeo ID -> Nombre
-            let categoryNames = dto.tags.compactMap { tagLookup[$0.tagId] ?? "Categoría Desconocida" }
-            let impactNames = dto.impacts.compactMap { impactLookup[$0.impactId] ?? "Impacto Desconocido" }
+            
+            let categoryNames = dto.tags.map { $0.tag.tagName }
+            let impactNames = dto.impacts.map { $0.impact.impactName }
             let categoriesString = categoryNames.joined(separator: ", ")
-
+            
             return Report(
                 displayId: String(dto.id),
                 title: dto.reportTitle,
@@ -162,7 +135,8 @@ class SearchViewModel: ObservableObject {
                 severity: mapSeverity(dto.severity),
                 user: dto.user ?? UserInReportDTO(username: "Anónimo"),
                 createdAt: createdAtDate,
-                evidences: dto.evidences,
+                // ✨ CORREGIDO: Maneja 'evidences' opcional
+                evidences: dto.evidences ?? [],
                 impacts: impactNames,
                 severityScore: dto.severity,
                 statusText: dto.reportStatus,
@@ -175,7 +149,6 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-    // --- Funciones auxiliares (sin cambios) ---
     private func mapSeverity(_ severity: Int) -> String {
         switch severity {
         case ...25: return "Baja"
@@ -193,5 +166,4 @@ class SearchViewModel: ObservableObject {
         default: return .gray
         }
     }
-
-} // End Class
+}

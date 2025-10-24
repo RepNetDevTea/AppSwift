@@ -155,4 +155,17 @@ struct ReportsAPIService {
         )
     }
     
+    // En ReportsAPIService.swift
+
+    // En ReportsAPIService.swift, dentro de la struct ReportsAPIService
+
+    /// Obtiene un solo reporte por su ID.
+    func fetchReport(withId reportId: Int) async throws -> ReportResponseDTO {
+        let endpoint = AppConfig.reportsURL + "/\(reportId)"
+        return try await networkClient.request(
+            endpoint: endpoint,
+            method: "GET",
+            isAuthenticated: true
+        )
+    }
 }

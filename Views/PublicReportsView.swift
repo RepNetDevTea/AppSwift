@@ -10,7 +10,8 @@ import SwiftUI
 
 struct PublicReportsView: View {
     
-    @ObservedObject var viewModel: PublicReportsViewModel
+    // ✨ CAMBIO: Usamos @StateObject porque esta vista (en un TabView) crea y posee su ViewModel.
+    @StateObject private var viewModel = PublicReportsViewModel()
     
     var body: some View {
         NavigationView {
@@ -18,31 +19,41 @@ struct PublicReportsView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     headerView
                     
-                    /// --- COMPONENTE DE FILTRO REINTRODUCIDO ---
-                    /// El picker ahora está de vuelta y conectado al 'selectedFilter' del ViewModel.
+                    // Filtro principal (Trending, etc.)
                     SegmentedPickerComponent(options: viewModel.filterOptions, selectedOption: $viewModel.selectedFilter)
                     
-                    /// --- VISTA DE CONTENIDO ---
-                    /// Se usa un 'switch' para mostrar la UI correcta según el estado.
-                    /// Esto también ayuda al compilador a procesar la vista más fácilmente.
-                    switch viewModel.isLoading {
-                    case true:
+                    // Filtro de Categoría
+                    HStack {
+                        FilterButtonComponent(
+                            selection: $viewModel.selectedCategory,
+                            options: viewModel.categoryOptions,
+                            iconName: "line.3.horizontal.decrease"
+                        )
+                        Spacer()
+                    }
+
+                    // --- VISTA DE CONTENIDO ---
+                    // Muestra el spinner solo si está cargando Y la lista está vacía
+                    if viewModel.isLoading && viewModel.reports.isEmpty {
                         ProgressView().frame(maxWidth: .infinity)
-                    case false:
-                        if let errorMessage = viewModel.errorMessage {
-                            Text(errorMessage).foregroundColor(.red).padding()
-                        } else if viewModel.filteredReports.isEmpty {
-                            Text("No se encontraron reportes que coincidan con tus filtros.")
-                                .foregroundColor(.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding()
-                        } else {
-                            /// La lista ahora itera sobre 'filteredReports', por lo que se
-                            /// actualizará automáticamente cuando el usuario cambie de filtro.
-                            ForEach(viewModel.filteredReports) { report in
-                                NavigationLink(destination: ReportDetailView(report: report, currentUserId: nil)) {
-                                    ReportCardComponent(report: report)
-                                }
+                        
+                    } else if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding()
+                            
+                    } else if viewModel.filteredReports.isEmpty {
+                        Text("No se encontraron reportes que coincidan con tus filtros.")
+                            .foregroundColor(.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding()
+                            
+                    } else {
+                        // Itera sobre la lista ya filtrada y ordenada
+                        ForEach(viewModel.filteredReports) { report in
+                            NavigationLink(destination: ReportDetailView(report: report, currentUserId: nil)) { // Pasa nil para el ID de usuario
+                                ReportCardComponent(report: report)
                             }
                         }
                     }
@@ -51,15 +62,14 @@ struct PublicReportsView: View {
             }
             .background(Color.appBackground)
             .navigationBarHidden(true)
-            .refreshable {
-                            // Llama a la función del ViewModel para recargar
-                            await viewModel.fetchPublicReports()
-                        }
+            
+            // --- MODIFICACIONES ---
+            // 1. Se eliminó el modificador .refreshable
+            
+            // 2. .onAppear ahora SIEMPRE refresca los datos
             .onAppear {
-                if viewModel.reports.isEmpty {
-                    Task {
-                        await viewModel.fetchPublicReports()
-                    }
+                Task {
+                    await viewModel.fetchPublicReports()
                 }
             }
         }
@@ -76,6 +86,6 @@ struct PublicReportsView: View {
 // La vista previa se mantiene igual.
 struct PublicReportsView_Previews: PreviewProvider {
     static var previews: some View {
-        PublicReportsView(viewModel: PublicReportsViewModel())
+        PublicReportsView()
     }
 }

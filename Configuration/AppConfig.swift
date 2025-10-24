@@ -14,7 +14,7 @@ struct AppConfig {
     
     // la direccion base del servidor backend. si la ip cambia, solo se cambia aqui.
     
-    static let server = "http://10.48.208.190:3000"
+    static let server = "http://10.48.232.42:3000"
     
     // -- endpoints de autenticacion --
     

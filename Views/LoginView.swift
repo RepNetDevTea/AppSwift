@@ -81,7 +81,7 @@ struct LoginView: View {
                             .foregroundColor(.textLink).fontWeight(.bold)
                     }
                 }
-                .font(.caption)
+                .font(.body)
             }
             .padding(30)
             

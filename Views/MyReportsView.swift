@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct MyReportsView: View {
-
-    // Use @StateObject if the View CREATES the ViewModel
-    // Use @ObservedObject if the ViewModel is PASSED IN from a parent
+    
     @ObservedObject var viewModel: MyReportsViewModel
     @EnvironmentObject var authManager: AuthenticationManager
 
@@ -29,7 +27,7 @@ struct MyReportsView: View {
                     }
 
                     // --- Main Content Logic ---
-                    // Show loader only on initial load AND if reports are empty
+                    // Muestra el spinner solo si está cargando Y la lista está vacía (carga inicial)
                     if viewModel.isLoading && viewModel.reports.isEmpty {
                         ProgressView()
                             .frame(maxWidth: .infinity)
@@ -37,14 +35,14 @@ struct MyReportsView: View {
                         Text(errorMessage)
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity, alignment: .center)
-                    // Check the FILTERED list for emptiness
+                    // Revisa la lista filtrada para el mensaje de "vacío"
                     } else if viewModel.filteredAndSortedReports.isEmpty {
                          Text("No se encontraron reportes que coincidan con tus filtros.")
-                             .foregroundColor(.textSecondary)
-                             .frame(maxWidth: .infinity, alignment: .center)
-                             .padding()
+                               .foregroundColor(.textSecondary)
+                               .frame(maxWidth: .infinity, alignment: .center)
+                               .padding()
                     } else {
-                        // ✨ CORRECTED: Iterate over filteredAndSortedReports ✨
+                        // Itera sobre la lista filtrada y ordenada
                         ForEach(viewModel.filteredAndSortedReports) { report in
                             NavigationLink(destination: ReportDetailView(report: report, currentUserId: authManager.user?.id )) {
                                 ReportCardComponent(report: report)
@@ -56,30 +54,25 @@ struct MyReportsView: View {
             }
             .background(Color.appBackground)
             .navigationBarHidden(true)
-            .refreshable {
-                await viewModel.fetchReports(
-                    status: viewModel.selectedStatus,
-                    category: viewModel.selectedCategory,
-                    sortBy: viewModel.selectedSort,
-                    userId: authManager.user?.id
-                )
-            }
+            // ✨ CAMBIO 1: Se eliminó el modificador .refreshable { ... }
+            
+            // ✨ CAMBIO 2: Se actualizó .onAppear para que SIEMPRE refresque
             .onAppear {
-                if viewModel.reports.isEmpty {
-                    Task {
-                        await viewModel.fetchReports(
-                            status: viewModel.selectedStatus,
-                            category: viewModel.selectedCategory,
-                            sortBy: viewModel.selectedSort,
-                            userId: authManager.user?.id
-                        )
-                    }
+                // Ya no revisamos si la lista está vacía.
+                // Siempre llamamos a fetchReports cuando la vista aparece.
+                Task {
+                    await viewModel.fetchReports(
+                        status: viewModel.selectedStatus,
+                        category: viewModel.selectedCategory,
+                        sortBy: viewModel.selectedSort,
+                        userId: authManager.user?.id
+                    )
                 }
             }
         }
     }
 
-    // --- Auxiliary Views ---
+    // --- Vistas Auxiliares ---
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading) {

@@ -53,7 +53,7 @@ struct EvidenceManagerView: View {
             }
         }
         .photosPicker(isPresented: $showingImagePicker, selection: $pickerItem, matching: .images)
-        .onChange(of: pickerItem) { _, newItem in // ✨ CORREGIDO
+        .onChange(of: pickerItem) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
@@ -77,11 +77,11 @@ struct EvidenceThumbnailView: View {
         ZStack(alignment: .topTrailing) {
             // Mostrar la imagen (existente o nueva)
             if case .existing(_, let urlString) = item, let url = URL(string: urlString) {
-                            AsyncImage(url: url) { image in
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } placeholder: {
-                                ProgressView()
-                            }
+                AsyncImage(url: url) { image in
+                    image.resizable().aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    ProgressView()
+                }
                 .frame(height: 100)
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(12)
@@ -104,6 +104,7 @@ struct EvidenceThumbnailView: View {
             
             // Botón para eliminar
             Button(action: {
+                // ✨ CORREGIDO: Faltaba el paréntesis de cierre aquí
                 onDelete(item)
             }) {
                 Image(systemName: "xmark.circle.fill")

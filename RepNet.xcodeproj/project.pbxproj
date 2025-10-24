@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		4B1CA1552EAAD85E00245E52 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7257B42E8A21D500634539 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4B7257BB2E8A21D500634539;
+			remoteInfo = RepNet;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		4B1CA1512EAAD85D00245E52 /* RepNetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RepNetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B7257BC2E8A21D500634539 /* RepNet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RepNet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +43,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4B1CA14E2EAAD85D00245E52 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4B7257B92E8A21D500634539 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -54,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				4B7257BC2E8A21D500634539 /* RepNet.app */,
+				4B1CA1512EAAD85D00245E52 /* RepNetTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +80,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4B1CA1502EAAD85D00245E52 /* RepNetTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B1CA1572EAAD85E00245E52 /* Build configuration list for PBXNativeTarget "RepNetTests" */;
+			buildPhases = (
+				4B1CA14D2EAAD85D00245E52 /* Sources */,
+				4B1CA14E2EAAD85D00245E52 /* Frameworks */,
+				4B1CA14F2EAAD85D00245E52 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4B1CA1562EAAD85E00245E52 /* PBXTargetDependency */,
+			);
+			name = RepNetTests;
+			packageProductDependencies = (
+			);
+			productName = RepNetTests;
+			productReference = 4B1CA1512EAAD85D00245E52 /* RepNetTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4B7257BB2E8A21D500634539 /* RepNet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4B7257C72E8A21D900634539 /* Build configuration list for PBXNativeTarget "RepNet" */;
@@ -93,6 +132,10 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					4B1CA1502EAAD85D00245E52 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 4B7257BB2E8A21D500634539;
+					};
 					4B7257BB2E8A21D500634539 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -113,11 +156,19 @@
 			projectRoot = "";
 			targets = (
 				4B7257BB2E8A21D500634539 /* RepNet */,
+				4B1CA1502EAAD85D00245E52 /* RepNetTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4B1CA14F2EAAD85D00245E52 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4B7257BA2E8A21D500634539 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +179,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4B1CA14D2EAAD85D00245E52 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4B7257B82E8A21D500634539 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,7 +195,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		4B1CA1562EAAD85E00245E52 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4B7257BB2E8A21D500634539 /* RepNet */;
+			targetProxy = 4B1CA1552EAAD85E00245E52 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		4B1CA1582EAAD85E00245E52 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = SajaBoys.RepNetTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepNet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepNet";
+			};
+			name = Debug;
+		};
+		4B1CA1592EAAD85E00245E52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = SajaBoys.RepNetTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RepNet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RepNet";
+			};
+			name = Release;
+		};
 		4B7257C52E8A21D900634539 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -264,6 +364,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L79577UV6Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RepNet/Info.plist;
@@ -292,6 +393,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L79577UV6Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RepNet/Info.plist;
@@ -316,6 +418,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4B1CA1572EAAD85E00245E52 /* Build configuration list for PBXNativeTarget "RepNetTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B1CA1582EAAD85E00245E52 /* Debug */,
+				4B1CA1592EAAD85E00245E52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4B7257B72E8A21D500634539 /* Build configuration list for PBXProject "RepNet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -35,7 +35,7 @@ struct MainTabView: View {
             
             // -- tab 2: reportes publicos --
             // lo mismo para `publicreportsview`.
-            PublicReportsView(viewModel: publicReportsViewModel)
+            PublicReportsView()
                 .tabItem {
                     Image(systemName: "globe")
                     Text("re. publicos")
