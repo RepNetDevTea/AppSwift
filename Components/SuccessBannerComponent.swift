@@ -4,8 +4,8 @@
 //
 //  Created by Angel Bosquez on 28/09/25.
 //
-//banner simple que se extiende a lo ancho para mostrar un mensaje de exito.
-// tiene un estilo visual predefinido con colores verdes para indicar una operacion exitosa.
+//banner simple para mostrar un mensaje de exito
+// tiene un estilo visual predefinido con colores verdes para indicar una operacion exitosa
 
 import SwiftUI
 
@@ -26,4 +26,3 @@ struct SuccessBannerComponent: View {
             .cornerRadius(8)
     }
 }
-//hola emi we

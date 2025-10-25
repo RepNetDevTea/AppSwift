@@ -2,31 +2,32 @@
 //  FilePreviewCardComponent.swift
 //  RepNet
 //
-//  Created by Angel Bosquez on 30/09/25.
+//  Created by Angel Bosquez on 25/10/25.
 //
-//tarjeta para vista previa de archivos, primero pensada para imagenes y documentos
-//ahora solo es para documentos
 
 
 import SwiftUI
 
+//este componente ya no se usa
+// este componente es una tarjeta de vista previa para un archivo
+// disenado originalmente para mostrar imagenes o un icono de documento
+
 struct FilePreviewCardComponent: View {
-    //objeto con datos de archivo a mostrar
     let file: FilePreview
-    //accion para eliminar archivo
     let onDelete: () -> Void
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
             if let image = file.image {
-                // se comprueba si el archivo es imagen
+                // si es imagen, la muestra
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                // vista para documentos (no se usara)
+                // si no es imagen, muestra un icono y nombre de archivo
+                // (segun el comentario, esta parte no se usaria)
                 VStack(spacing: 8) {
                     Image(systemName: file.iconName)
                         .font(.largeTitle)
@@ -41,14 +42,14 @@ struct FilePreviewCardComponent: View {
                 .cornerRadius(12)
             }
             
-            //boton de borrado
+            // boton de borrado
             Button(action: onDelete) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundColor(.white)
                     .background(Circle().fill(Color.black.opacity(0.6)))
                     .font(.title2)
             }
-            .offset(x: 8, y: -8)
+            .offset(x: 8, y: -8) // lo saca un poco de la esquina
         }
     }
 }

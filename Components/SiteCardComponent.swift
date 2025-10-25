@@ -4,8 +4,8 @@
 //
 //  Created by Angel Bosquez on 12/10/25.
 //
-// una tarjeta expandible que muestra la informacion de un sitio web.
-// el encabezado muestra un resumen (dominio, reputacion) y al tocarlo,
+// tarjeta expandible que muestra la informacion de un sitio web
+// el encabezado muestra un resumen
 // revela una lista de los reportes asociados a ese sitio.
 
 import SwiftUI
@@ -13,7 +13,6 @@ import SwiftUI
 struct SiteCardComponent: View {
 
     let site: Site
-    // Added property to receive the current user ID
     let currentUserId: Int?
 
     @State private var isExpanded = false

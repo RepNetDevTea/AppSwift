@@ -7,15 +7,15 @@
 
 
 import SwiftUI
-import PhotosUI // Para el selector de fotos
+import PhotosUI
 
 struct EvidenceManagerView: View {
-    @Binding var evidenceItems: [EvidenceItem] // Recibirá la lista de evidencias del ViewModel
+    @Binding var evidenceItems: [EvidenceItem]
     
     @State private var showingImagePicker = false
-    @State private var pickerItem: PhotosPickerItem? // Para seleccionar una sola imagen
+    @State private var pickerItem: PhotosPickerItem?
     
-    // Configuración de la cuadrícula
+    // cuadricula
     private let gridColumns: [GridItem] = [
         .init(.flexible()),
         .init(.flexible()),
@@ -27,16 +27,16 @@ struct EvidenceManagerView: View {
             Text("Evidencias").font(.headline)
             
             LazyVGrid(columns: gridColumns, spacing: 10) {
-                // 1. Mostrar evidencias existentes y nuevas
+                // muestra evidencia existente y nueva
                 ForEach(evidenceItems) { item in
                     EvidenceThumbnailView(item: item) { itemToDelete in
-                        // Acción para eliminar una evidencia
+                        // elimina evidencia
                         evidenceItems.removeAll { $0.id == itemToDelete.id }
                     }
                 }
                 
-                // 2. Botón para añadir nuevas evidencias (usando PhotosPicker)
-                if evidenceItems.count < 5 { // Límite de 5 fotos
+                // boton para anadir nuevas evidencias
+                if evidenceItems.count < 5 { // limite de 5 fotos max
                     Button(action: {
                         showingImagePicker = true
                     }) {
@@ -68,14 +68,15 @@ struct EvidenceManagerView: View {
     }
 }
 
-// --- Sub-Componente para mostrar cada miniatura de evidencia ---
+// miniaturas en evidencias
+//puede ser otro componente
 struct EvidenceThumbnailView: View {
     let item: EvidenceItem
-    let onDelete: (EvidenceItem) -> Void // Callback para cuando se elimina una imagen
+    let onDelete: (EvidenceItem) -> Void
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            // Mostrar la imagen (existente o nueva)
+            //mostrar imagen
             if case .existing(_, let urlString) = item, let url = URL(string: urlString) {
                 AsyncImage(url: url) { image in
                     image.resizable().aspectRatio(contentMode: .fill)
@@ -94,7 +95,7 @@ struct EvidenceThumbnailView: View {
                     .cornerRadius(12)
                     .clipped()
             } else {
-                // Placeholder en caso de error o imagen no cargada
+                // placeholder para imagenes en carga
                 Image(systemName: "photo").resizable().aspectRatio(contentMode: .fit)
                     .frame(height: 100)
                     .background(Color.gray.opacity(0.1))
@@ -102,9 +103,8 @@ struct EvidenceThumbnailView: View {
                     .foregroundColor(.textSecondary)
             }
             
-            // Botón para eliminar
+            //boton para eliminar
             Button(action: {
-                // ✨ CORREGIDO: Faltaba el paréntesis de cierre aquí
                 onDelete(item)
             }) {
                 Image(systemName: "xmark.circle.fill")
@@ -117,9 +117,9 @@ struct EvidenceThumbnailView: View {
     }
 }
 
-// --- Vista Previa ---
+// prreview con ia
 struct EvidenceManagerView_Previews: PreviewProvider {
-    // Definimos un State para simular la lista de evidencias en el ViewModel
+    
     @State static var previewEvidences: [EvidenceItem] = [
         .existing(id: 1, url: "https://via.placeholder.com/150"),
         .existing(id: 2, url: "https://via.placeholder.com/150"),

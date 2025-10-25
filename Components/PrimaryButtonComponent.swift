@@ -5,7 +5,6 @@
 //  Created by Angel Bosquez on 28/09/25.
 //
 //boton reutilizable que representa la accion principal
-//
 
 import SwiftUI
 

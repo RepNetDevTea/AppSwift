@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
-    // Add EnvironmentObject to access the logged-in user
     @EnvironmentObject var authManager: AuthenticationManager
 
     var body: some View {
@@ -20,7 +19,7 @@ struct SearchView: View {
                     .font(.largeTitle).bold()
                     .padding([.horizontal, .top])
 
-                SearchBarComponent(text: $viewModel.searchQuery, placeholder: "Buscar por página...") // Placeholder updated
+                SearchBarComponent(text: $viewModel.searchQuery, placeholder: "Buscar por página...")
                     .padding(.horizontal)
 
                 switch viewModel.state {
@@ -32,7 +31,7 @@ struct SearchView: View {
                     ScrollView {
                         LazyVStack(spacing: 20) {
                             ForEach(sites) { site in
-                                // Pass currentUserId to SiteCardComponent
+                                
                                 SiteCardComponent(site: site, currentUserId: authManager.user?.id)
                                     .padding(.horizontal)
                             }
@@ -45,18 +44,16 @@ struct SearchView: View {
                     SearchPlaceholderView(icon: "exclamationmark.triangle", text: message, isError: true)
                 }
 
-                Spacer() // Ensure Spacer is inside the main VStack
+                Spacer()
             }
             .background(Color.appBackground.ignoresSafeArea())
             .navigationBarHidden(true)
-            // .onAppear is removed
+            
         }
-        // Ensure the EnvironmentObject is injected where SearchView is used
-        // Example: .environmentObject(AuthenticationManager())
+        
     }
 }
 
-// Auxiliary view for placeholder states
 private struct SearchPlaceholderView: View {
     let icon: String
     let text: String
@@ -79,15 +76,13 @@ private struct SearchPlaceholderView: View {
     }
 }
 
-// Preview provider (needs EnvironmentObject)
+
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        // Create a dummy AuthenticationManager for the preview
+        
         let authManager = AuthenticationManager()
-        // Optionally simulate a logged-in user for preview
-        // authManager.login(...)
 
         SearchView()
-            .environmentObject(authManager) // Provide the dummy authManager
+            .environmentObject(authManager)
     }
 }

@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-// esta es una vista simple y estatica para mostrar informacion sobre la app.
-// actualmente muestra notas de la version, pero podria usarse para terminos y condiciones, etc.
+// vista simple y estatica para mostrar informacion sobre la app.
+
 
 
 struct AppInfoView: View {
@@ -19,9 +19,9 @@ struct AppInfoView: View {
             Color.appBackground.ignoresSafeArea()
             
             VStack {
-                // el scrollview asegura que el contenido se pueda desplazar si es muy largo.
+                
                 ScrollView {
-                    // el vstack interior agrupa todo el texto y se le da un estilo de tarjeta.
+                    
                     VStack(alignment: .leading, spacing: 15) {
                         Text("release notes")
                             .font(.title).bold()
@@ -45,9 +45,8 @@ struct AppInfoView: View {
             }
             .padding()
         }
-        // se establece el titulo de la barra de navegacion.
         .navigationTitle("app info")
-        // `.inline` muestra el titulo pequeno en el centro, en lugar de grande a la izquierda.
+       
         .navigationBarTitleDisplayMode(.inline)
     }
 }

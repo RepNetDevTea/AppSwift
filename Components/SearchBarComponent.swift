@@ -15,7 +15,6 @@ struct SearchBarComponent: View {
     let placeholder: String
 
     var body: some View {
-    // el hstack organiza el icono, el campo de texto y el boton de limpiar horizontalmente.
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.textSecondary)
@@ -25,7 +24,7 @@ struct SearchBarComponent: View {
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
             
-    // muestra el boton de limpiar solo si el usuario ha escrito algo.
+    // muestra el boton de limpiar solo si el usuario ha escrito algo
             if !text.isEmpty {
                 Button(action: {
                     self.text = ""
@@ -41,22 +40,19 @@ struct SearchBarComponent: View {
     }
 }
 
-// --- VISTA PREVIA AÑADIDA ---
+// vista previa hecha con ia
 struct SearchBarComponent_Previews: PreviewProvider {
-    // Usamos una vista contenedora para poder usar @State con el @Binding.
     struct PreviewWrapper: View {
         @State private var searchTextEmpty = ""
         @State private var searchTextFilled = "aiura.com.mx"
         
         var body: some View {
             VStack(spacing: 20) {
-                // Instancia para ver el estado vacío
                 SearchBarComponent(
                     text: $searchTextEmpty,
                     placeholder: "Buscar por página o reporte..."
                 )
                 
-                // Instancia para ver el estado con texto (y el botón de limpiar)
                 SearchBarComponent(
                     text: $searchTextFilled,
                     placeholder: "Buscar por página o reporte..."

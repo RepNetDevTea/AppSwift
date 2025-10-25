@@ -4,16 +4,18 @@
 //
 //  Created by Angel Bosquez on 02/10/25.
 //
-// este archivo define los dtos para crear y recibir reportes de la api.
+
 
 import Foundation
 
-// --- DTOs para ENVIAR (Crear/Actualizar) ---
+
+// MARK: - DTOs request
 
 struct TagImpactID: Encodable {
     let id: Int
 }
 
+// dto para crear un nuevo repore
 struct CreateReportRequestDTO: Encodable {
     let reportTitle: String
     let reportUrl: String
@@ -23,6 +25,7 @@ struct CreateReportRequestDTO: Encodable {
     let impacts: [TagImpactID]
 }
 
+// dto para actualizar un reporte
 struct UpdateReportRequestDTO: Encodable {
     var reportTitle: String? = nil
     var reportUrl: String? = nil
@@ -33,25 +36,13 @@ struct UpdateReportRequestDTO: Encodable {
     var deletedImpacts: [String]? = nil
 }
 
-// --- DTOs para RECIBIR (Respuestas de la API) ---
+// MARK: - DTOs Response
 
 struct CreateReportResponseDTO: Decodable {
     let id: Int
 }
 
-// ✨ NUEVO: Struct para leer {"tagId": X, "reportId": Y}
-struct ReportTagIdDTO: Decodable, Hashable {
-    let tagId: Int
-    // reportId is ignored for now
-}
-
-// ✨ NUEVO: Struct para leer {"impactId": X, "reportId": Y}
-struct ReportImpactIdDTO: Decodable, Hashable {
-    let impactId: Int
-    // reportId is ignored for now
-}
-
-// DTO principal para recibir un reporte completo.
+// dto principal para recibir un reporte completo
 struct ReportResponseDTO: Decodable, Identifiable {
     let id: Int
     let reportTitle: String
@@ -64,34 +55,51 @@ struct ReportResponseDTO: Decodable, Identifiable {
     let siteId: Int
     let userId: Int
     let updatedAt: String
+    
+    // objetos anidados
     let site: SiteDTO?
     let user: UserInReportDTO?
 
+    // listas anidadas
     let votes: [VoteDTO]
     let evidences: [EvidenceResponseDTO]
-
-    // ✨ CORREGIDO: Usan los nuevos DTOs que solo contienen IDs.
+    
+    //  listasm de is
     let tags: [ReportTagIdDTO]
     let impacts: [ReportImpactIdDTO]
 }
 
 
-// --- Sub-DTOs para las respuestas ---
+// MARK: - Componentes de Respuesta
 
+// struct para leer tags
+struct ReportTagIdDTO: Decodable, Hashable {
+    let tagId: Int
+}
+
+// struct para leer impacts
+struct ReportImpactIdDTO: Decodable, Hashable {
+    let impactId: Int
+}
+
+// dto para la informacion del sitio
 struct SiteDTO: Decodable {
     let id: Int
     let siteDomain: String
 }
 
+// dto para la informacion del usuario que reporta
 struct UserInReportDTO: Decodable, Equatable {
     let username: String
 }
 
+// dto para la informacion de un voto
 struct VoteDTO: Decodable {
     let userId: Int
     let voteType: String
 }
 
+// dto para la informacion de una evidencia
 struct EvidenceResponseDTO: Decodable, Identifiable {
     let id: Int
     let evidenceType: String
@@ -99,6 +107,3 @@ struct EvidenceResponseDTO: Decodable, Identifiable {
     let evidenceFileUrl: String?
     let evidenceFileUri: String?
 }
-
-// ✨ ELIMINADO: ReportTagDTO, TagDetailDTO, ReportImpactDTO, ImpactDetailDTO
-// Ya no son necesarios porque haremos el mapeo de IDs en el ViewModel.

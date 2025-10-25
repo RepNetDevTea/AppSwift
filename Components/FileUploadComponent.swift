@@ -1,41 +1,48 @@
+
 //
 //  FileUploadComponent.swift
 //  RepNet
 //
 //  Created by Angel Bosquez on 29/09/25.
-//esta madre esta mal hecha y es 100% ai, pequeno detalle que no hay hover en movil
-//componente para seleccionar varios archivos
-/// una vez seleccionados, muestra una vista previa horizontal de los archivos,
-/// permitiendo al usuario eliminar cualquiera de ellos.
 
 import SwiftUI
 import UniformTypeIdentifiers
 
-// --- NUEVO MODELO ---
-// Creamos un pequeño 'struct' para representar una imagen seleccionada.
-// Hacerlo 'Identifiable' y 'Equatable' facilita su manejo en listas y colecciones.
+// este componente fue hecho con ia
+//es el selector de archivos original
+// usa .fileImporter, que abre el navegador de "archivos" del sistema
+//
+// nota: este componente ya no se usa en CreateReportView
+// fue reemplazado por EvidenceManagerView, que usa PhotosPicker
+//
+// tambien define 'SelectedImage' aqui, que es una dependencia de 'EvidenceItem'
+
+// MARK: - Modelo de Imagen Seleccionada
+
+// struct simple para guardar una imagen seleccionada de la galeria
+// 'evidenceitem' depende de esta struct
 struct SelectedImage: Identifiable, Equatable {
     let id = UUID()
     let uiImage: UIImage
 }
 
+// MARK: - Componente de Subida de Archivos
+
 struct FileUploadComponent: View {
     
-    // --- CAMBIO CLAVE AQUÍ ---
-    // El componente ahora usa un '@Binding' para comunicarse con la vista padre.
-    // Cuando el usuario añade o quita imágenes aquí, la lista en el ViewModel se actualiza.
+    // binding al viewmodel
     @Binding var selectedImages: [SelectedImage]
     @State private var showFileImporter = false
 
     var body: some View {
         VStack(spacing: 20) {
-            // El botón de carga ahora añade las imágenes a nuestro 'binding'.
+            // el boton principal para abrir el selector de archivos
             Button(action: { showFileImporter = true }) {
                 VStack(spacing: 10) {
                     Image(systemName: "arrow.up.doc")
                         .font(.largeTitle)
                     Text("Toca para cargar archivos")
-                        .font(.bodyText)
+                        .font(.bodyText) // asumo que .bodyText existe
                         .fontWeight(.semibold)
                 }
                 .foregroundColor(.textSecondary)
@@ -47,9 +54,9 @@ struct FileUploadComponent: View {
                         .foregroundColor(.gray.opacity(0.5))
                 )
             }
-            .disabled(selectedImages.count >= 5) // Deshabilita el botón si se alcanza el límite de 5 fotos.
+            .disabled(selectedImages.count >= 5) // se deshabilita al llegar a 5
             
-            // --- VISTA PREVIA DE ARCHIVOS SELECCIONADOS ---
+            // --- vista previa de imagenes seleccionadas ---
             if !selectedImages.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
@@ -60,7 +67,7 @@ struct FileUploadComponent: View {
                                 .frame(width: 100, height: 100)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .overlay(alignment: .topTrailing) {
-                                    // Botón para eliminar la imagen de la selección.
+                                    // boton 'x' para eliminar
                                     Button(action: {
                                         selectedImages.removeAll { $0.id == imageItem.id }
                                     }) {
@@ -80,21 +87,21 @@ struct FileUploadComponent: View {
         }
         .fileImporter(
             isPresented: $showFileImporter,
-            allowedContentTypes: [UTType.image],
+            allowedContentTypes: [UTType.image], // solo permite imagenes
             allowsMultipleSelection: true
         ) { result in
             switch result {
             case .success(let urls):
                 for url in urls {
-                    // Nos aseguramos de no exceder el límite de 5 imágenes.
+                    // aseguramos el limite de 5
                     guard selectedImages.count < 5 else { break }
                     
-                    // Intentamos acceder y cargar los datos de la imagen.
+                    // cargamos los datos de la imagen desde la url
                     if url.startAccessingSecurityScopedResource(),
                        let imageData = try? Data(contentsOf: url),
                        let uiImage = UIImage(data: imageData) {
                         
-                        // Usamos nuestra extensión para redimensionar la imagen antes de añadirla.
+                        // usamos la extension para redimensionar la imagen
                         if let resizedImage = uiImage.resized(to: 1024) {
                             selectedImages.append(SelectedImage(uiImage: resizedImage))
                         }

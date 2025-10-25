@@ -36,7 +36,7 @@ struct EditReportView: View {
                         InputViewComponent(text: $viewModel.reportUrl, placeholder: "URL del sitio o evidencia")
                             .keyboardType(.URL)
                         
-                        // ✨ CORREGIDO: Se usa el MultiSelectPicker genérico para las categorías (tags).
+                     
                         MultiSelectPickerComponent(
                             title: "Categorías",
                             options: viewModel.tagOptions,
@@ -55,7 +55,7 @@ struct EditReportView: View {
                         }
                     }
                     
-                    // ✨ CORREGIDO: Se usa el MultiSelectPicker genérico para los impactos.
+                
                     MultiSelectPickerComponent(
                         title: "Impactos Potenciales",
                         options: viewModel.impactOptions,

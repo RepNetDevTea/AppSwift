@@ -26,8 +26,7 @@ struct MyReportsView: View {
                         Spacer()
                     }
 
-                    // --- Main Content Logic ---
-                    // Muestra el spinner solo si está cargando Y la lista está vacía (carga inicial)
+                    // muestra el spinner solo si está cargando Y la lista está vacía (carga inicial)
                     if viewModel.isLoading && viewModel.reports.isEmpty {
                         ProgressView()
                             .frame(maxWidth: .infinity)
@@ -35,14 +34,14 @@ struct MyReportsView: View {
                         Text(errorMessage)
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity, alignment: .center)
-                    // Revisa la lista filtrada para el mensaje de "vacío"
+                    // revisa la lista filtrada para el mensaje de "vacío"
                     } else if viewModel.filteredAndSortedReports.isEmpty {
                          Text("No se encontraron reportes que coincidan con tus filtros.")
                                .foregroundColor(.textSecondary)
                                .frame(maxWidth: .infinity, alignment: .center)
                                .padding()
                     } else {
-                        // Itera sobre la lista filtrada y ordenada
+                        // itera sobre la lista filtrada y ordenada
                         ForEach(viewModel.filteredAndSortedReports) { report in
                             NavigationLink(destination: ReportDetailView(report: report, currentUserId: authManager.user?.id )) {
                                 ReportCardComponent(report: report)
@@ -54,12 +53,10 @@ struct MyReportsView: View {
             }
             .background(Color.appBackground)
             .navigationBarHidden(true)
-            // ✨ CAMBIO 1: Se eliminó el modificador .refreshable { ... }
-            
-            // ✨ CAMBIO 2: Se actualizó .onAppear para que SIEMPRE refresque
+          
             .onAppear {
-                // Ya no revisamos si la lista está vacía.
-                // Siempre llamamos a fetchReports cuando la vista aparece.
+                // ya no revisamos si la lista está vacía.
+                // siempre llamamos a fetchReports cuando la vista aparece.
                 Task {
                     await viewModel.fetchReports(
                         status: viewModel.selectedStatus,
@@ -72,7 +69,6 @@ struct MyReportsView: View {
         }
     }
 
-    // --- Vistas Auxiliares ---
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading) {

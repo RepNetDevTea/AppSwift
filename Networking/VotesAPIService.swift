@@ -7,31 +7,32 @@
 
 import Foundation
 
-/// Un servicio dedicado exclusivamente a las llamadas de red relacionadas con los votos.
+// este archivo define el 'votesapiservice'
+// es un servicio dedicado exclusivamente a las llamadas de red
+// relacionadas con los votos (upvote/downvote)
+
+
 struct VotesAPIService {
+    
+    // una instancia privada del cliente de red generico
     private let networkClient = NetworkClient()
     
-    /// Envía un voto (upvote o downvote) para un reporte específico.
-    /// - Parameters:
-    ///   - reportId: El ID del reporte que se está votando.
-    ///   - voteType: El tipo de voto, que debe ser "upvote" o "downvote".
+    
+    // envia un voto (upvote o downvote) para un reporte especifico
     func castVote(reportId: Int, voteType: String) async throws {
-        // --- CORRECCIÓN CLAVE AQUÍ ---
-        // Basado en el código de tu 'ReportsController', la ruta correcta es específica
-        // para cada reporte y se encarga de "alternar" el voto (toggle).
+        
+        // la ruta es especifica para 'togglear' el voto en un reporte
         let endpoint = AppConfig.reportsURL + "/\(reportId)/toggleVote"
         
-        // El backend espera un cuerpo JSON con el 'voteType'.
+        // el backend espera un cuerpo json simple con el 'votetype'
         let voteData = ["voteType": voteType]
         
-        // Esta es una acción autenticada, por lo que necesita el token del usuario.
+        // se llama a la version de 'request' que no espera un cuerpo de respuesta
         try await networkClient.request(
             endpoint: endpoint,
             method: "POST",
             body: voteData,
-            isAuthenticated: true
+            isAuthenticated: true // requiere token para saber que usuario esta votando
         )
     }
 }
-
-

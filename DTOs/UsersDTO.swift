@@ -4,11 +4,15 @@
 //
 //  Created by Angel Bosquez on 02/10/25.
 //
-//Nota para Emi: este tiene pedos con el JWTauthguard, como tal si se conecta pero no lo deja pasar
+//Nota para Emi: este tiene problemas con el JWTauthguard, como tal si se conecta pero no lo deja pasar -- ARREGLADO
+
 import Foundation
 
-// Este DTO representa los datos del perfil de usuario que recibimos del backend.
-// Este struct se mantiene sin cambios, ya que sigue representando los datos que nos llegan.
+// este archivo define los dtos del perfil de usuario
+
+// MARK: - DTO Response
+
+//  get /users/me
 struct UserProfileResponseDTO: Decodable {
     let name: String
     let fathersLastName: String
@@ -17,13 +21,10 @@ struct UserProfileResponseDTO: Decodable {
     let username: String
 }
 
-// --- ARCHIVO ACTUALIZADO ---
-// Este DTO representa los datos que enviaremos para actualizar el perfil.
-// Ha sido modificado para incluir todos los campos y la lógica de autorización.
+// MARK: - DTOs Request
+
+//  actualizar el perfil (patch /users/me)
 struct UpdateProfileRequestDTO: Encodable {
-    
-    // --- Campos de Datos del Usuario (Opcionales) ---
-    // El usuario puede enviar solo los campos que desea cambiar.
     var name: String? = nil
     var fathersLastName: String? = nil
     var mothersLastName: String? = nil
@@ -32,7 +33,8 @@ struct UpdateProfileRequestDTO: Encodable {
     var hashedPassword: String? = nil
 }
 
-/// --- NUEVO DTO AÑADIDO ---
-/// Representa el JSON que enviaremos al backend para autorizar la eliminación de la cuenta.
-/// Asumimos que el backend requiere la contraseña actual del usuario para confirmar la acción.
-struct DeleteAccountRequestDTO: Encodable { }
+// este dto se usa para eliminar la cuenta (delete /users/me)
+// esta vacio porque la autorizacion se maneja por el token
+struct DeleteAccountRequestDTO: Encodable {
+    // no necesita cuerpo
+}

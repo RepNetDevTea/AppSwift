@@ -4,37 +4,39 @@
 //
 //  Created by Angel Bosquez on 29/09/25.
 //
-//boton en forma de pildora disenado para ser usado en filtros y ordenes
-
 
 
 import SwiftUI
 
+// boton de filtro en forma de pildora
+// al tocarlo, muestra un menu desplegable con opciones
+//
+
 struct FilterButtonComponent: View {
-    //binding para guardar input
+    // binding al viewmodel, guarda la opcion seleccionada
     @Binding var selection: String
-    //arreglo que muestra opciones
+    // el array de strings con las opciones del menu
     let options: [String]
-    //nombre del icono a la izqueirda
+    // el nombre del icono de sf symbols a la izquierda
     let iconName: String
 
     var body: some View {
-        //en si es un menu
+        // el componente principal es un menu
         Menu {
-            //cada elemento del arreglo se convierte en un boton del menu
+            // itera sobre las opciones y crea un boton para cada una
             ForEach(options, id: \.self) { option in
                 Button(action: {
-                    //se actuaaliza el boton del binding
+                    // al tocar, actualiza el estado en el viewmodel
                     selection = option
                 }) {
                     Text(option)
                 }
             }
         } label: {
-            //etiqueta del menu, lo que el usuario ve
+            // esta es la etiqueta del menu
             HStack(spacing: 5) {
                 Image(systemName: iconName)
-                //texto del menu refleja seleccion actual
+                // el texto del boton siempre refleja la seleccion actual
                 Text(selection)
             }
             .font(.caption)
@@ -49,6 +51,7 @@ struct FilterButtonComponent: View {
 
 // preview hecha con ia
 struct FilterButtonComponent_Previews: PreviewProvider {
+    // se usa un 'wrapper' para poder simular el @state
     struct PreviewWrapper: View {
         @State private var categorySelection = "Malware"
         let categories = ["Malware", "Phishing", "Otro"]
@@ -69,4 +72,3 @@ struct FilterButtonComponent_Previews: PreviewProvider {
         PreviewWrapper()
     }
 }
-

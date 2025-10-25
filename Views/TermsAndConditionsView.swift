@@ -9,23 +9,20 @@
 import SwiftUI
 
 struct TermsAndConditionsView: View {
-    
-    // El 'presentationMode' nos permite cerrar esta vista modal.
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        // Usamos un ZStack para poner el color de fondo en toda la pantalla.
         ZStack {
             Color.appBackground.ignoresSafeArea()
             
             VStack(spacing: 20) {
-                // --- Encabezado ---
+              
                 HStack {
                     Text("Términos y Condiciones")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     Spacer()
-                    // Botón para cerrar la vista modal
+                   
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()
                     }) {
@@ -35,10 +32,9 @@ struct TermsAndConditionsView: View {
                     }
                 }
                 
-                // --- Tarjeta con el Contenido ---
+           
                 ScrollView {
-                    // Usamos texto de ejemplo (Lorem Ipsum).
-                    // En una app real, aquí iría el texto legal completo.
+                    
                     Text("""
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
                     
@@ -58,7 +54,7 @@ struct TermsAndConditionsView: View {
     }
 }
 
-// Vista previa para poder diseñar la pantalla de forma aislada.
+// preview ia 
 struct TermsAndConditionsView_Previews: PreviewProvider {
     static var previews: some View {
         TermsAndConditionsView()

@@ -5,15 +5,15 @@
 //  Created by Angel Bosquez on 30/09/25.
 //
 
+
+//este archivo no se usa ya que no implementamos subir archivos aparte de imagenes 
 // este es un modelo para la ui que representa un archivo seleccionado por el usuario.
 // su trabajo es tomar la url de un archivo y prepararlo para ser mostrado en una vista previa,
 // ya sea como una imagen o como un icono generico.
-// `identifiable` es para poder usarlo en listas de swiftui.
 
 import SwiftUI
 import UniformTypeIdentifiers
 
-// Representa un archivo seleccionado para la vista previa.
 struct FilePreview: Identifiable {
     let id = UUID()
     let url: URL
@@ -22,10 +22,8 @@ struct FilePreview: Identifiable {
         url.lastPathComponent
     }
     
-    // Vista previa para imágenes
     var image: UIImage?
     
-    // Icono y color para otros tipos de archivo
     var iconName: String
     var iconColor: Color
 

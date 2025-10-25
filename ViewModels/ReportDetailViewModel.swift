@@ -20,7 +20,7 @@ class ReportDetailViewModel: ObservableObject {
         self.report = report
     }
     
-    /// Maneja la lógica cuando el usuario presiona el botón de 'upvote'.
+    // Maneja la lógica cuando el usuario presiona el botón de 'upvote'.
     func handleUpvote() {
         let originalStatus = report.userVoteStatus
         let originalScore = report.voteScore ?? 0
@@ -57,7 +57,7 @@ class ReportDetailViewModel: ObservableObject {
         }
     }
     
-    /// Maneja la lógica cuando el usuario presiona el botón de 'downvote'.
+    // Maneja la lógica cuando el usuario presiona el botón de 'downvote'.
     func handleDownvote() {
         let originalStatus = report.userVoteStatus
         let originalScore = report.voteScore ?? 0
@@ -97,8 +97,6 @@ class ReportDetailViewModel: ObservableObject {
     // En ReportDetailViewModel.swift
 
     private func updateReportState(newScore: Int, newStatus: UserVoteStatus?) {
-        // ✨ CORREGIDO: Se actualizó el inicializador para que coincida con el nuevo modelo 'Report'.
-        // Simplemente pasamos los nuevos valores que ya tenía el reporte.
         self.report = Report(
             id: report.id,
             displayId: report.displayId,
@@ -110,12 +108,12 @@ class ReportDetailViewModel: ObservableObject {
             severity: report.severity,
             user: report.user,
             createdAt: report.createdAt,
-            evidences: report.evidences,     // Se pasa el valor existente
-            impacts: report.impacts,         // Se pasa el valor existente
-            severityScore: report.severityScore, // Se pasa el valor existente
+            evidences: report.evidences,
+            impacts: report.impacts,
+            severityScore: report.severityScore,
             statusText: report.statusText,
             statusColor: report.statusColor,
-            voteScore: newScore,             // Se actualiza con el nuevo valor
+            voteScore: newScore,
             userVoteStatus: newStatus,
             userId: report.userId,
             adminFeedback: report.adminFeedback

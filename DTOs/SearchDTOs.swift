@@ -5,12 +5,14 @@
 //  Created by Angel Bosquez on 12/10/25.
 //
 
-// este archivo define el dto para los resultados de la busqueda.
-// la api de busqueda devuelve directamente un arreglo de estos objetos: `[siteresponsedto]`
 
 import Foundation
 
-// 1. DTO para el Sitio (el objeto principal de la respuesta)
+// edefine los dtos para la respuesta de la api de busqueda
+// la estructura de los reportes aqui es diferente a la de get /reports
+
+// MARK: - DTO  de Sitio
+
 struct SiteResponseDTO: Decodable, Identifiable {
     let id: Int
     let siteDomain: String
@@ -18,7 +20,9 @@ struct SiteResponseDTO: Decodable, Identifiable {
     let reports: [SearchReportDTO]
 }
 
-// 2. DTO para el Reporte anidado en la búsqueda
+// MARK: - DTO de Reporte Anidado
+
+// dto para el reporte que viene anidado dentro del sitio
 struct SearchReportDTO: Decodable, Identifiable {
     let id: Int
     let reportTitle: String
@@ -30,28 +34,30 @@ struct SearchReportDTO: Decodable, Identifiable {
     let createdAt: String
     let adminFeedback: String?
     let user: UserInReportDTO?
-    
-    // ✨ CORREGIDO: Hechas opcionales para que coincidan con el JSON de x.com
     let votes: [VoteDTO]?
     let evidences: [EvidenceResponseDTO]?
-    
-    let tags: [SearchReportTagDTO]
+        let tags: [SearchReportTagDTO]
     let impacts: [SearchReportImpactDTO]
 }
 
-// 3. DTOs Wrapper (para leer el formato anidado {"tag": {...}})
+// MARK: - wrappers
+
+
 struct SearchReportTagDTO: Decodable, Hashable {
+    // el contenedor "tag"
     let tag: SearchTagDetailDTO
 }
 struct SearchTagDetailDTO: Decodable, Hashable {
+    // el nombre del tag que viene adentro
     let tagName: String
 }
+
 struct SearchReportImpactDTO: Decodable, Hashable {
+    // el contenedor "impact"
     let impact: SearchImpactDetailDTO
 }
 struct SearchImpactDetailDTO: Decodable, Hashable {
+    // el nombre del impacto que viene adentro
     let impactName: String
 }
 
-// Nota: UserInReportDTO, VoteDTO, y EvidenceResponseDTO
-// se asume que están definidos globalmente (en ReportDTOs.swift) y se pueden reutilizar.

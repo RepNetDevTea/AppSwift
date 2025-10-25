@@ -7,40 +7,51 @@
 
 import Foundation
 
+// este archivo define el 'searchapiservice'
+// es un servicio especifico para la funcionalidad de busqueda
+// se conecta al endpoint 'get /sites'
+//
+
 struct SearchAPIService {
+    
+    // una instancia privada del cliente de red generico
     private let networkClient = NetworkClient()
 
-    // Busca sitios por dominio, esperando un solo resultado o ninguno.
-    func search(query: String) async throws -> SiteResponseDTO? { // <-- Devuelve un solo DTO opcional
+    // MARK: - Funcion de Busqueda
+    
+    // busca un sitio por dominio, esperando un solo 'siteresponsedto' o 'nil'
+    func search(query: String) async throws -> SiteResponseDTO? {
 
-        // Validación básica (solo busca si parece un dominio)
+        // validacion basica, solo busca si el texto incluye un '.'
         guard query.contains(".") else {
-             print("Formato de búsqueda inválido: \(query)")
-             return nil // Devuelve nil si la consulta no es válida
+            print("formato de busqueda invalido: \(query)")
+            return nil // devuelve nil si la consulta no es un dominio valido
         }
 
-        // Usa URLComponents para construir la URL de forma segura
+        // usa urlcomponents para construir la url de forma segura
         guard var components = URLComponents(string: AppConfig.sitesURL) else {
             throw APIError.invalidURL
         }
 
+        // anade los parametros 'sitedomain' y 'page' a la url
         components.queryItems = [
             URLQueryItem(name: "siteDomain", value: query),
-            URLQueryItem(name: "page", value: "1") // Mantenemos page=1 por si acaso
+            URLQueryItem(name: "page", value: "1") // se usa '1' como pagina por defecto
         ]
 
         guard let endpoint = components.url?.absoluteString else {
             throw APIError.invalidURL
         }
 
-        print("➡️ Searching sites with URL: \(endpoint)")
+        print("➡️ searching sites with url: \(endpoint)")
 
-        // ✨ CORRECCIÓN: Espera un solo objeto (SiteResponseDTO.self) ✨
-        // Usa try? para manejar casos 404 (no encontrado) sin error de decodificación.
+       
+        // se usa 'try?' para manejar un error 404 (no encontrado) como 'nil'
+        // esto evita que la app falle si la api no devuelve nada
         let result: SiteResponseDTO? = try? await networkClient.request(
             endpoint: endpoint,
             method: "GET",
-            isAuthenticated: false // Asumiendo búsqueda pública
+            isAuthenticated: false // la busqueda es publica
         )
         return result
     }

@@ -23,8 +23,6 @@ struct SignUpView: View {
     @Environment(\.presentationMode) var presentationMode
     
     @FocusState private var isPasswordEditing: Bool
-    /// --- NUEVA PROPIEDAD DE ESTADO AÑADIDA ---
-    /// Controla si la hoja modal de los Términos y Condiciones está visible.
     @State private var showTermsSheet = false
     
     var body: some View {
@@ -47,9 +45,7 @@ struct SignUpView: View {
                         Divider().padding(.horizontal)
                         InputViewComponent(text: $viewModel.username, placeholder: "Nombre de usuario")
                         
-                        /// --- CAMBIO #1: Divisor más prominente ---
-                        /// Se añade un divisor más grueso y oscuro para separar
-                        /// visualmente los datos personales de las credenciales.
+                
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(height: 1)
@@ -84,9 +80,8 @@ struct SignUpView: View {
                         Text(passwordError).font(.caption).foregroundColor(.errorRed)
                     }
                     
-                    /// --- CAMBIO #2: Sección de Términos y Condiciones alineada ---
+                    
                     HStack {
-                        // El Checkbox
                         Button(action: {
                             viewModel.hasAgreedToTerms.toggle()
                         }) {
@@ -95,7 +90,7 @@ struct SignUpView: View {
                         }
                         .disabled(!viewModel.hasOpenedTerms)
                         
-                        // El Texto y el Enlace
+                        
                         HStack(spacing: 4) {
                             Text("He leído y acepto los")
                             Button("Términos y Condiciones") {
@@ -106,7 +101,7 @@ struct SignUpView: View {
                         }
                         .font(.caption)
                         
-                        Spacer() // <-- Este Spacer empuja todo el contenido a la izquierda.
+                        Spacer()
                     }
                     
                     PrimaryButtonComponent(

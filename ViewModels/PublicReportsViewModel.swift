@@ -7,36 +7,48 @@
 
 import Foundation
 import SwiftUI
-import Combine // Added Combine import if needed later, good practice
+import Combine 
+
+// este es el viewmodel para la pantalla "reportes publicos"
+//
+
 
 @MainActor
 class PublicReportsViewModel: ObservableObject {
 
+    // MARK: - Propiedades y Servicios
+    
     private let reportsAPIService = ReportsAPIService()
     private let tagsAndImpactsAPIService = TagsAndImpactsAPIService()
 
-    // Store the complete lists for lookups
+    // almacenes para guardar los "diccionarios" de tags/impacts
     private var allTags: [Tag] = []
     private var allImpacts: [Impact] = []
 
-    @Published var reports: [Report] = []
+    // --- estado principal ---
+    @Published var reports: [Report] = [] // la lista base (solo reportes aprobados)
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
+    // --- estado de los filtros ---
     @Published var selectedFilter: String = "Todos"
-    let filterOptions = ["Todos", "Trending", "Más recientes"]
+    let filterOptions = ["Todos", "Trending", "Mas recientes"]
 
-    // ✨ ADD Category filter properties ✨
-    @Published var selectedCategory: String = "Categorías" // Default "all" option
+    @Published var selectedCategory: String = "Categorias" // opcion "todos"
     var categoryOptions: [String] {
-        ["Categorías"] + allTags.map { $0.tagName }.sorted()
+        // anade "categorias" a la lista de tags descargada
+        ["Categorias"] + allTags.map { $0.tagName }.sorted()
     }
 
-    // Computed property for UI filtering
+    // MARK: - Propiedad Computada (Filtros)
+    
+    // esta es la lista que la vista *realmente* muestra
+    // toma la lista 'reports' (ya filtrada por 'approved')
+    // y le aplica los filtros de la ui
     var filteredReports: [Report] {
         var processedReports: [Report]
 
-        // --- Apply Status/Trending/Recent Filter ---
+        // 1. aplica el filtro principal (todos, trending, mas recientes)
         switch selectedFilter {
         case "Trending":
             let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
@@ -44,14 +56,14 @@ class PublicReportsViewModel: ObservableObject {
                 let score = report.voteScore ?? 0
                 return score > 50 && report.createdAt >= oneWeekAgo
             }
-        case "Más recientes":
+        case "Mas recientes":
             processedReports = reports.sorted { $0.createdAt > $1.createdAt }
-        default: // "Todos"
+        default: // "todos"
              processedReports = reports
         }
 
-        // --- Apply Category Filter ---
-        if selectedCategory != "Categorías" {
+        // 2. aplica el filtro de categoria (sobre la lista ya filtrada)
+        if selectedCategory != "Categorias" {
             processedReports = processedReports.filter { report in
                 report.category.localizedCaseInsensitiveContains(selectedCategory)
             }
@@ -60,114 +72,124 @@ class PublicReportsViewModel: ObservableObject {
         return processedReports
     }
 
-    // Load lookups on initialization
+    // MARK: - Inicializador
+    
+    // load lookups on initialization
     init() {
         Task {
-            // Fetch lookups silently in the background initially
+            // carga los tags/impacts silenciosamente al iniciar
             await fetchInitialLookups(showLoading: false)
         }
     }
 
-    // Fetches the lists of tags and impacts
+    // MARK: - Logica de API
+    
+    // obtiene las listas completas de tags e impacts
     private func fetchInitialLookups(showLoading: Bool) async {
-        if showLoading { isLoading = true } // Show loading only if requested
-        // Don't clear error message here, let fetchPublicReports handle it
+        if showLoading { isLoading = true }
+        // no limpia el error aqui, deja que la funcion principal lo maneje
         do {
             async let tags = tagsAndImpactsAPIService.fetchAllTags()
             async let impacts = tagsAndImpactsAPIService.fetchAllImpacts()
             self.allTags = try await tags
             self.allImpacts = try await impacts
         } catch {
-            print("❌ Error al cargar listas de tags/impacts: \(error)")
-            // Set error only if the main report fetch hasn't already set one
+            print("❌ error al cargar listas de tags/impacts: \(error)")
             if errorMessage == nil {
-                self.errorMessage = "No se pudieron cargar las opciones de filtro."
+                self.errorMessage = "no se pudieron cargar las opciones de filtro."
             }
         }
-        if showLoading { isLoading = false } // Hide loading only if shown
+        if showLoading { isLoading = false }
     }
 
 
-    // Fetches lookups first, then filters reports
+    // la funcion principal para cargar los reportes publicos
     func fetchPublicReports() async {
-        // ✨ Guard 1: Prevent duplicate fetches ✨
+        // 1. guard para evitar cargas duplicadas (arregla error -999)
         guard !isLoading else {
-            print("Fetch already in progress (Public). Skipping.")
+            print("fetch already in progress (public). skipping.")
             return
         }
 
-        // ✨ Set isLoading TRUE here ✨
+        // 2. pone el estado de carga
         isLoading = true
-        errorMessage = nil // Clear previous errors
+        errorMessage = nil
 
-        // Ensure lookups are loaded, show loading indicator while doing so if needed
+        // 3. asegura que los "diccionarios" de tags/impacts esten cargados
         if allTags.isEmpty || allImpacts.isEmpty {
-             await fetchInitialLookups(showLoading: false) // Fetch lookups without extra loading indicator
-             // If lookups failed (errorMessage will be set by fetchInitialLookups)
+             await fetchInitialLookups(showLoading: false)
              if allTags.isEmpty || allImpacts.isEmpty {
-                 isLoading = false // Turn off loading
+                 isLoading = false // detiene la carga si los lookups fallaron
                  return
              }
         }
 
-        // Guard 2: Re-check isLoading (optional, for safety)
+        // 4. (opcional) re-chequeo por si acaso
         guard isLoading else { return }
 
 
         do {
+            // 5. llama a la api
             let allReportDTOs = try await reportsAPIService.fetchPublicReports()
 
-            // Filter for approved status
+            // 6. filtra en el cliente para mostrar solo los 'approved'
             let approvedReports = allReportDTOs.filter { dto in
                 return dto.reportStatus.lowercased() == "approved"
             }
 
-            // Map using the lookups
+            // 7. mapea los dtos filtrados al modelo 'report'
             self.reports = mapDTOsToReports(approvedReports)
 
         } catch {
-            print("❌ Error al obtener reportes públicos: \(error)")
-            self.errorMessage = "No se pudieron cargar los reportes."
+            print("❌ error al obtener reportes publicos: \(error)")
+            self.errorMessage = "no se pudieron cargar los reportes."
         }
 
-        // ✨ Set isLoading FALSE at the very end ✨
+        // 8. quita el estado de carga al final
         isLoading = false
     }
 
-    // mapDTOsToReports function remains the same (implements ID -> Name mapping)
+    // MARK: - Logica de Mapeo
+    
+    // "traduce" los dtos de la api a los modelos 'report' que usa la ui
     private func mapDTOsToReports(_ dtos: [ReportResponseDTO]) -> [Report] {
         let formatter = ISO8601DateFormatter()
-        // Ensure lookups are ready before mapping
+        
+        // asegura que los diccionarios esten listos
         guard !allTags.isEmpty, !allImpacts.isEmpty else {
-            print("⚠️ Attempted to map reports before lookups were loaded.")
-            return [] // Return empty if lookups aren't ready
+            print("⚠️ se intento mapear reportes sin tener los lookups.")
+            return []
         }
+        // crea los diccionarios para busqueda rapida de id -> nombre
         let tagLookup = Dictionary(uniqueKeysWithValues: allTags.map { ($0.id, $0.tagName) })
         let impactLookup = Dictionary(uniqueKeysWithValues: allImpacts.map { ($0.id, $0.impactName) })
 
         return dtos.map { dto in
             let createdAtDate = formatter.date(from: dto.createdAt) ?? Date()
 
+            // calcula la puntuacion de votos
             var score = 0
+            // maneja 'votes' opcional (gracias al dto de busqueda)
             for vote in dto.votes {
                  if vote.voteType == "upvote" { score += 1 }
                  else if vote.voteType == "downvote" { score -= 1 }
             }
 
-            // Map IDs to Names
-            let categoryNames = dto.tags.compactMap { tagLookup[$0.tagId] ?? "Categoría Desconocida" }
-            let impactNames = dto.impacts.compactMap { impactLookup[$0.impactId] ?? "Impacto Desconocido" }
+            // "traduce" los ids a nombres
+            let categoryNames = dto.tags.compactMap { tagLookup[$0.tagId] ?? "categoria desconocida" }
+            let impactNames = dto.impacts.compactMap { impactLookup[$0.impactId] ?? "impacto desconocido" }
             let categoriesString = categoryNames.joined(separator: ", ")
 
+            // crea el objeto 'report' final
             return Report(
                 displayId: String(dto.id),
                 title: dto.reportTitle,
                 date: createdAtDate.formatted(date: .long, time: .omitted),
                 url: dto.reportUrl,
                 description: dto.reportDescription,
-                category: categoriesString.isEmpty ? "General" : categoriesString,
+                category: categoriesString.isEmpty ? "general" : categoriesString,
                 severity: mapSeverity(dto.severity),
-                user: dto.user ?? UserInReportDTO(username: "Anónimo"),
+                user: dto.user ?? UserInReportDTO(username: "anonimo"),
                 createdAt: createdAtDate,
                 evidences: dto.evidences,
                 impacts: impactNames,
@@ -175,27 +197,27 @@ class PublicReportsViewModel: ObservableObject {
                 statusText: dto.reportStatus,
                 statusColor: mapStatusColor(dto.reportStatus),
                 voteScore: score,
-                userVoteStatus: nil,
+                userVoteStatus: nil, // no aplica en publico
                 userId: dto.userId,
                 adminFeedback: dto.adminFeedback
             )
         }
     }
 
-    // --- Helper functions ---
+    // --- helpers de mapeo ---
     private func mapSeverity(_ severity: Int) -> String {
         switch severity {
-        case ...25: return "Baja"
-        case 26...50: return "Media"
-        case 51...75: return "Alta"
-        default: return "Severa"
+        case ...25: return "baja"
+        case 26...50: return "media"
+        case 51...75: return "alta"
+        default: return "severa"
         }
     }
 
     private func mapStatusColor(_ status: String) -> Color {
         switch status.lowercased() {
-        case "pending", "revision": return .statusReview
-        case "approved", "accepted", "aceptado": return .statusAccepted
+        case "pending", "revision", "pendiente": return .statusReview
+        case "approved", "accepted", "aceptado", "aprobado": return .statusAccepted
         case "rejected", "rechazado": return .statusRejected
         default: return .gray
         }

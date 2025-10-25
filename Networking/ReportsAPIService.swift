@@ -7,40 +7,37 @@
 
 import Foundation
 
-// este archivo define el `reportsapiservice`, un servicio que centraliza
-// todas las llamadas a la api que tienen que ver con reportes.
+// este archivo define el 'reportsapiservice'
+// centraliza todas las llamadas a la api que tienen que ver con reportes
+// usa el 'networkclient' generico para realizar las peticiones
 
-// agrupa las funciones para obtener y crear reportes.
-// usa el `networkclient` generico para realizar las peticiones.
 struct ReportsAPIService {
+    
+    // una instancia privada del cliente de red generico
     private let networkClient = NetworkClient()
     
-    /// Obtiene la lista de reportes del usuario, aplicando los filtros del lado del servidor.
-    /// Esta función ha sido actualizada para aceptar parámetros que se convertirán en query params en la URL.
-    /// - Parameters:
-    ///   - status: El estado por el cual filtrar (ej. "pending").
-    ///   - category: La categoría por la cual filtrar (ej. "Malware").
-    ///   - sortBy: El campo por el cual ordenar.
-    // En ReportsAPIService.swift
-
-    /// Obtiene la lista de reportes del usuario, aplicando los filtros del lado del servidor.
+    // MARK: - Obtener Reportes (GET)
+    
+    // obtiene la lista de reportes para un usuario especifico, con filtros
     func fetchMyReports(userId: Int, status: String, category: String, sortBy: String) async throws -> [ReportResponseDTO] {
         
         var components = URLComponents(string: AppConfig.reportsURL)
-        // ✨ CORREGIDO: Se añade el userId como el primer parámetro de filtro.
-        // Esto asegura que la API solo devuelva los reportes del usuario loggeado.
+        // anade el 'userid' como parametro principal de filtro
         components?.queryItems = [
             URLQueryItem(name: "userId", value: String(userId))
         ]
         
-        // ✨ CORREGIDO: Se "traducen" los valores del filtro de estado de español a inglés.
+        // "traduce" los valores de estado de espanol (ui) a ingles (api)
         let statusMap = [
-            "revisión": "pending",
+            "pendiente": "pending",
+            "aprobado": "approved",
             "aceptados": "accepted",
+            "rechazado": "rejected",
             "rechazados": "rejected"
         ]
         let statusInEnglish = statusMap[status.lowercased()]
 
+        // anade los filtros a la url si no son los valores por defecto
         if status != "Todos", let backendStatus = statusInEnglish {
             components?.queryItems?.append(URLQueryItem(name: "status", value: backendStatus))
         }
@@ -58,13 +55,35 @@ struct ReportsAPIService {
         return try await networkClient.request(
             endpoint: endpoint,
             method: "GET",
-            isAuthenticated: true
+            isAuthenticated: true // requiere token
         )
     }
     
-    /// --- FUNCIÓN 'createReport' ACTUALIZADA ---
-    /// Ahora devuelve el 'ReportResponseDTO' del reporte recién creado.
-    /// Esto es crucial porque nos da acceso al 'id' que necesitamos para subir las evidencias.
+    // obtiene la lista de todos los reportes publicos (aprobados)
+  
+    func fetchPublicReports() async throws -> [ReportResponseDTO] {
+        let endpoint = AppConfig.reportsURL
+        return try await networkClient.request(
+            endpoint: endpoint,
+            method: "GET",
+            isAuthenticated: false // no requiere token
+        )
+    }
+    
+    // obtiene un solo reporte por su id
+    func fetchReport(withId reportId: Int) async throws -> ReportResponseDTO {
+        let endpoint = AppConfig.reportsURL + "/\(reportId)"
+        return try await networkClient.request(
+            endpoint: endpoint,
+            method: "GET",
+            isAuthenticated: true // asumo que requiere token
+        )
+    }
+    
+    // MARK: - Crear y Modificar Reportes (POST / PATCH)
+
+    // crea un nuevo reporte con los datos de texto (paso 1 del flujo)
+    // devuelve un 'createreportresponsedto' que solo contiene el id
     func createReport(data: CreateReportRequestDTO) async throws -> CreateReportResponseDTO {
         let endpoint = AppConfig.reportsURL
         return try await networkClient.request(
@@ -75,28 +94,12 @@ struct ReportsAPIService {
         )
     }
     
-    // obtiene la lista de reportes publicos, los que puede ver cualquier persona (logueada o no).
-    // usa el mismo endpoint que `fetchmyreports`, pero la diferencia clave es `isauthenticated: false`.
-    // el backend interpreta la ausencia del token como una solicitud de los reportes publicos.
-    func fetchPublicReports() async throws -> [ReportResponseDTO] {
-        let endpoint = AppConfig.reportsURL
-        return try await networkClient.request(
-            endpoint: endpoint,
-            method: "GET",
-            isAuthenticated: false // <-- esta es la diferencia.
-        )
-    }
-    
-    
-    /// Envía los datos actualizados de un reporte existente al backend.
-    /// Utiliza el método 'PATCH', que es ideal para modificaciones parciales.
-    /// - Parameters:
-    ///   - reportId: El ID del reporte que se va a modificar.
-    ///   - data: Un DTO que contiene solo los campos que el usuario ha cambiado.
+    // envia los datos actualizados de un reporte (ej. cambiar titulo, anadir/borrar tags)
+    // usa el metodo 'patch' para actualizaciones parciales
     func updateReport(reportId: Int, data: UpdateReportRequestDTO) async throws {
-        /// Construimos la URL específica para el reporte, ej: /reports/32
         let endpoint = AppConfig.reportsURL + "/\(reportId)"
         
+        // usa la funcion 'request' que no devuelve cuerpo
         try await networkClient.request(
             endpoint: endpoint,
             method: "PATCH",
@@ -105,66 +108,50 @@ struct ReportsAPIService {
         )
     }
     
-    
-    /// Sube una imagen de evidencia para un reporte específico.
-      func addEvidence(toReportId reportId: Int, imageData: Data) async throws {
-        // Usa la nueva función de AppConfig para construir la URL.
+    // MARK: - Evidencias (POST / GET / DELETE)
+
+    // sube una imagen de evidencia para un reporte especifico
+    func addEvidence(toReportId reportId: Int, imageData: Data) async throws {
         let endpoint = AppConfig.evidencesURL(forReportId: reportId)
         
+        // usa la funcion especial 'upload' del networkclient
         try await networkClient.upload(
             endpoint: endpoint,
             imageData: imageData,
-            fieldName: "file", // El backend espera que el campo se llame "file".
+            fieldName: "file", // el nombre del campo que espera el backend
             fileName: "\(UUID().uuidString).jpg",
             isAuthenticated: true
         )
-      }
-      
-      /// Obtiene la lista de evidencias para un reporte específico.
-      func fetchEvidences(forReportId reportId: Int) async throws -> [EvidenceResponseDTO] {
+    }
+    
+    // obtiene la lista de evidencias para un reporte
+    func fetchEvidences(forReportId reportId: Int) async throws -> [EvidenceResponseDTO] {
         let endpoint = AppConfig.evidencesURL(forReportId: reportId)
         return try await networkClient.request(
             endpoint: endpoint,
             method: "GET",
-            isAuthenticated: true // Necesitamos estar logueados para ver las evidencias.
+            isAuthenticated: true
         )
-      }
-      
-      /// Elimina una evidencia específica de un reporte.
-      func deleteEvidence(evidenceId: Int, fromReportId reportId: Int) async throws {
-        // Construye la URL completa, ej: /reports/32/evidences/1
+    }
+    
+    // elimina una evidencia especifica de un reporte
+    func deleteEvidence(evidenceId: Int, fromReportId reportId: Int) async throws {
         let endpoint = AppConfig.evidencesURL(forReportId: reportId) + "/\(evidenceId)"
         try await networkClient.request(
             endpoint: endpoint,
             method: "DELETE",
             isAuthenticated: true
         )
-      }
+    }
     
-    
-    // MARK: -calcular severity score
+    // MARK: - Scoring (PATCH)
 
-    /// Llama al endpoint para que el backend calcule la severidad de un reporte.
+    // llama al endpoint para que el backend calcule la severidad (paso 3 del flujo de creacion)
     func calculateSeverityScore(forReportId reportId: Int) async throws {
         let endpoint = AppConfig.reportsURL + "/\(reportId)/severityScore"
-        // Usamos la versión de 'request' que no espera datos de vuelta.
         try await networkClient.request(
             endpoint: endpoint,
             method: "PATCH",
-            isAuthenticated: true
-        )
-    }
-    
-    // En ReportsAPIService.swift
-
-    // En ReportsAPIService.swift, dentro de la struct ReportsAPIService
-
-    /// Obtiene un solo reporte por su ID.
-    func fetchReport(withId reportId: Int) async throws -> ReportResponseDTO {
-        let endpoint = AppConfig.reportsURL + "/\(reportId)"
-        return try await networkClient.request(
-            endpoint: endpoint,
-            method: "GET",
             isAuthenticated: true
         )
     }

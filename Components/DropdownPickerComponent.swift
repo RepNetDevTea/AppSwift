@@ -4,43 +4,43 @@
 //
 //  Created by Angel Bosquez on 29/09/25.
 //
-//componente para seleccion desplegable
-//cuando se toca muestra un menu de opciones
-//
-//pensando para formularios donde se selecciona una opcion predeterminada
+
 
 
 import SwiftUI
 
+// componente es un selector desplegable
+// muestra un boton con un titulo y al tocarlo, despliega un menu de opciones
+// esta disenado para formularios donde el usuario debe elegir una sola opcion
+//
+
 struct DropdownPickerComponent: View {
-    //texto predeterminado
     let title: String
-    //array de strings para opcioens del menu
     let options: [String]
-    //binding para almacenar la seleccion del usuario
+    // binding al viewmodel para guardar la opcion seleccionada
     @Binding var selection: String
 
     var body: some View {
         Menu {
-            //botones para cada uno de los opciones
+            // crea un boton por cada opcion en el array
             ForEach(options, id: \.self) { option in
                 Button(action: {
+                    // al tocar, actualiza la seleccion en el viewmodel
                     selection = option
                 }) {
-                    //tag component para cada opcion del menu
+                    // muestra el texto de la opcion
                     TagComponent(text: option)
                 }
             }
         } label: {
-            //parte que se ve antes de que se abra el menu
+            // esta es la parte visible del boton
             HStack {
-                //muestra seleccion actual (o nada)
+                // muestra la seleccion actual, o el titulo si no hay seleccion
                 Text(selection.isEmpty ? title : selection)
                 Spacer()
                 Image(systemName: "chevron.up.chevron.down")
             }
             .font(.bodyText)
-            //color cambia cuando se selecciona
             .foregroundColor(selection.isEmpty ? .textSecondary : .textPrimary)
             .padding()
             .background(Color.textFieldBackground)
@@ -53,7 +53,7 @@ struct DropdownPickerComponent: View {
     }
 }
 
-//vista previa hecha con ia
+// preview hecha con ia 
 struct DropdownPickerComponent_Previews: PreviewProvider {
     struct PreviewWrapper: View {
         @State private var categorySelection = ""
@@ -64,8 +64,9 @@ struct DropdownPickerComponent_Previews: PreviewProvider {
         
         var body: some View {
             VStack(spacing: 20) {
+                // prueba con una seleccion vacia
                 DropdownPickerComponent(
-                    title: "Categoría",
+                    title: "Categoria",
                     options: categories,
                     selection: $categorySelection
                 )

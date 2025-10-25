@@ -17,14 +17,9 @@ struct SignUpRequestDTO: Encodable {
     let password: String
     
     
-    // `codingkeys` se usa para mapear los nombres de nuestras propiedades
-        // a nombres diferentes en el json que se envia al servidor.
+   //sugerido de ia por la discrepancia de nombres
     enum CodingKeys: String, CodingKey {
-        // estas propiedades se envian en el json con el mismo nombre que tienen aqui.
         case name, fathersLastName, mothersLastName, username, email
-        
-        // aqui le decimos que nuestra propiedad `password` debe llamarse `hashedpassword` en el json.
-        // esto es util si el backend espera un nombre diferente al que usamos en swift.
         case password = "hashedPassword"
     }
 }

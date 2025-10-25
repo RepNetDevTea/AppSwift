@@ -5,8 +5,6 @@
 //  Created by Angel Bosquez on 29/09/25.
 //
 // un control de seleccion segmentado y personalizable con una animacion fluida.
-// a diferencia de un picker estandar, este componente tiene un fondo que se desliza
-// suavemente a la opcion seleccionada y soporta scroll horizontal para muchas opciones.
 
 import SwiftUI
 
@@ -18,7 +16,6 @@ struct SegmentedPickerComponent: View {
     // un binding al string que almacena la opcion actualmente seleccionada.
     @Binding var selectedOption: String
     
-    // el namespace se usa para coordinar la animacion `matchedgeometryeffect`.
     // conecta el fondo de la opcion anterior con el de la nueva para crear el deslizamiento.
     @Namespace private var animation
 
@@ -42,7 +39,7 @@ struct SegmentedPickerComponent: View {
                             .foregroundColor(selectedOption == option ? .primaryBlue : .textSecondary)
                             .background(
                                 
-                // este zstack con el `if` se encarga de dibujar el fondo blanco
+                // este zstack con el if se encarga de dibujar el fondo blanco
                 // solo para la opcion que esta actualmente seleccionada.
                                 ZStack {
                                     if selectedOption == option {

@@ -11,6 +11,6 @@ import Foundation
 // Le diremos al servidor en qué reporte estamos votando y qué tipo de voto es.
 struct VoteRequestDTO: Encodable {
     let reportId: Int
-    let voteType: String // Será "upvote" o "downvote"
+    let voteType: String
 }
 

@@ -4,40 +4,41 @@
 //
 //  Created by Angel Bosquez on 28/09/25.
 //
-// una vista simple que muestra una sola linea de requisito para una contrasena.
-// cambia su icono y color (exito, fallo, neutral) basado en un `validationstate`.
-// este componente dependia del enum `validationstate` pero se elimino
+
 
 import SwiftUI
 
+import SwiftUI
 
+// simple linea de texto con un icono
+// se usa para mostrar un solo requisito de contrasena
+// el icono y el color cambian (verde, rojo, gris) segun el estado de validacion
+//
 
 struct PasswordRequirementComponent: View {
-    //texto de requerimientos a mostrar
+    // el texto del requisito a mostrar
     let requirement: String
-    //estado de validacion actual
+    // el estado actual (neutral, success, failure)
     let state: ValidationState
 
     var body: some View {
         HStack {
-            //icono se agarra del estado de validacion
             Image(systemName: state.iconName)
             Text(requirement)
             Spacer()
         }
         .font(.caption)
-        //color y texto tambien dependen del estado de valdiacion
         .foregroundColor(state.color)
     }
 }
 
-//preview
+// preview hecha con ia
 struct PasswordRequirementComponent_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .leading, spacing: 10) {
-            PasswordRequirementComponent(requirement: "8 caracteres mínimo.", state: .neutral)
+            PasswordRequirementComponent(requirement: "8 caracteres minimo.", state: .neutral)
             PasswordRequirementComponent(requirement: "1 caracter especial (!@#$%^&*?).", state: .success)
-            PasswordRequirementComponent(requirement: "1 caracter numérico (1 2 3 4).", state: .failure)
+            PasswordRequirementComponent(requirement: "1 caracter numerico (1 2 3 4).", state: .failure)
         }
         .padding()
     }

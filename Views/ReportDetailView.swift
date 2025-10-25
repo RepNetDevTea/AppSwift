@@ -9,7 +9,7 @@
 // -- componentes utilizados --
 // - tagcomponent
 // - votecomponent
-// - inforow (vista auxiliar local)
+// - inforow
 
 import SwiftUI
 
@@ -17,13 +17,10 @@ struct ReportDetailView: View {
 
     @StateObject private var viewModel: ReportDetailViewModel
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var authManager: AuthenticationManager // For checking current user
+    @EnvironmentObject var authManager: AuthenticationManager
 
-    // State for full-screen image view
     @State private var isShowingFullScreenImage = false
     @State private var selectedImageURL: URL?
-
-    // Store the ID of the currently logged-in user
     private let currentUserId: Int?
 
     init(report: Report, currentUserId: Int?) {
@@ -31,16 +28,16 @@ struct ReportDetailView: View {
         self.currentUserId = currentUserId
     }
 
-    // ✨ BODY SIMPLIFIED ✨
+   
     var body: some View {
-        ZStack { // ZStack allows the full-screen image view to overlay
+        ZStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 25) {
 
-                    // Use the computed property for the main card
+                    
                     reportCard
 
-                    // --- Voting Section ---
+                    // seccion de voto
                     if viewModel.report.statusText?.lowercased() == "approved" {
                         let scoreBinding = Binding<Int>(get: { viewModel.report.voteScore ?? 0 }, set: { _ in })
                         let statusBinding = Binding<UserVoteStatus?>(get: { viewModel.report.userVoteStatus }, set: { _ in })
@@ -54,15 +51,15 @@ struct ReportDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                     }
 
-                } // End Main VStack
+                }
                 .padding()
 
-            } // End ScrollView
+            }
             .background(Color.appBackground.ignoresSafeArea())
             .navigationTitle("Detalle del Reporte")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            .toolbar { // Toolbar remains the same
+            .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { presentationMode.wrappedValue.dismiss() }) {
                         Image(systemName: "arrow.left")
@@ -80,15 +77,14 @@ struct ReportDetailView: View {
                 }
             }
 
-            // Full-screen image overlay (remains the same)
+            
             if isShowingFullScreenImage, let url = selectedImageURL {
                 FullScreenImageView(url: url, isPresented: $isShowingFullScreenImage)
             }
 
-        } // End ZStack
-    } // End body
+        }
+    }
 
-    // ✨ NEW COMPUTED PROPERTY for the main report card ✨
     private var reportCard: some View {
         VStack(alignment: .leading, spacing: 20) {
 
@@ -161,7 +157,6 @@ struct ReportDetailView: View {
                 }
             }
 
-            // --- Admin Feedback Box ---
             if let feedback = viewModel.report.adminFeedback, !feedback.isEmpty,
                viewModel.report.userId == currentUserId {
                 FeedbackBoxComponent(feedback: feedback)
@@ -173,7 +168,6 @@ struct ReportDetailView: View {
         .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
     }
 
-    // isReportEditable function (remains the same)
     private func isReportEditable() -> Bool {
         guard let status = viewModel.report.statusText?.lowercased() else {
             return false
@@ -181,9 +175,8 @@ struct ReportDetailView: View {
         return status == "pending" || status == "revision" || status == "rejected" || status == "rechazado"
     }
 
-} // End Struct
+}
 
-// --- Full Screen Image View Component (remains the same) ---
 struct FullScreenImageView: View {
     let url: URL
     @Binding var isPresented: Bool
@@ -214,7 +207,6 @@ struct FullScreenImageView: View {
     }
 }
 
-// --- Auxiliary Components (InfoRow, FlexibleHStackView) (remain the same) ---
 private struct InfoRow<Content: View>: View {
     let label: String
     var content: Content?
@@ -300,4 +292,3 @@ struct FlexibleHStackView<Data: RandomAccessCollection, Content: View>: View whe
     }
 }
 
-// MARK: --- Preview Provider ---

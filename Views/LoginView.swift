@@ -11,21 +11,13 @@ import SwiftUI
 // esta es la vista de swiftui para la pantalla de "login".
 // son manejados por el `loginviewmodel`.
 
-// -- componentes utilizados --
-// - inputviewcomponent
-// - secureinputviewcomponent
-// - primarybuttoncomponent
+
 struct LoginView: View {
     
-    // se crea e inicializa el viewmodel para esta vista.
     @StateObject private var viewModel = LoginViewModel()
-    
-    // se inyecta el `authmanager` del entorno. se le pasara al viewmodel
-    // cuando el login sea exitoso para que actualice el estado de toda la app.
     @EnvironmentObject var authManager: AuthenticationManager
 
     var body: some View {
-        // `zstack` como vista raiz para mostrar el spinner de carga por encima de todo.
         ZStack {
             Color.appBackground.ignoresSafeArea()
 
@@ -59,24 +51,20 @@ struct LoginView: View {
                 PrimaryButtonComponent(
                     title: "iniciar sesion",
                     action: {
-                        // para llamar a una funcion `async` (como la de login que espera a la red)
-                        // desde un closure normal, se debe envolver en un `task`.
-                        // esto ejecuta la llamada a la api en segundo plano sin congelar la ui.
                         Task {
                             await viewModel.login(with: authManager)
                         }
                     },
-                    // el boton solo se puede presionar si `isformvalid` en el viewmodel es `true`.
+
                     isEnabled: viewModel.isFormValid
                 )
                 
                 Spacer()
 
-                // seccion inferior con enlaces para registrarse o recuperar contrasena.
+                // seccion inferior con enlaces para registrarse
                 VStack(spacing: 15) {
                     HStack(spacing: 4) {
                         Text("¿no tienes cuenta?").foregroundColor(.textSecondary)
-                        // `navigationlink` para llevar al usuario a la pantalla de registro.
                         NavigationLink("registrate", destination: SignUpView())
                             .foregroundColor(.textLink).fontWeight(.bold)
                     }
@@ -85,7 +73,6 @@ struct LoginView: View {
             }
             .padding(30)
             
-            // el overlay de carga se muestra cuando `isloading` es true en el viewmodel.
             if viewModel.isLoading {
                 Color.black.opacity(0.4).ignoresSafeArea()
                 ProgressView().scaleEffect(1.5).tint(.white)

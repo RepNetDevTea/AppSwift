@@ -10,7 +10,6 @@ import SwiftUI
 
 struct PublicReportsView: View {
     
-    // ✨ CAMBIO: Usamos @StateObject porque esta vista (en un TabView) crea y posee su ViewModel.
     @StateObject private var viewModel = PublicReportsViewModel()
     
     var body: some View {
@@ -18,11 +17,9 @@ struct PublicReportsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     headerView
-                    
-                    // Filtro principal (Trending, etc.)
+                    //filtro trending
                     SegmentedPickerComponent(options: viewModel.filterOptions, selectedOption: $viewModel.selectedFilter)
-                    
-                    // Filtro de Categoría
+                    //filtro cateogria
                     HStack {
                         FilterButtonComponent(
                             selection: $viewModel.selectedCategory,
@@ -32,8 +29,7 @@ struct PublicReportsView: View {
                         Spacer()
                     }
 
-                    // --- VISTA DE CONTENIDO ---
-                    // Muestra el spinner solo si está cargando Y la lista está vacía
+                  //se meustra un spinner si la pantalla esta cargando
                     if viewModel.isLoading && viewModel.reports.isEmpty {
                         ProgressView().frame(maxWidth: .infinity)
                         
@@ -50,9 +46,9 @@ struct PublicReportsView: View {
                             .padding()
                             
                     } else {
-                        // Itera sobre la lista ya filtrada y ordenada
+                      
                         ForEach(viewModel.filteredReports) { report in
-                            NavigationLink(destination: ReportDetailView(report: report, currentUserId: nil)) { // Pasa nil para el ID de usuario
+                            NavigationLink(destination: ReportDetailView(report: report, currentUserId: nil)) {
                                 ReportCardComponent(report: report)
                             }
                         }
@@ -62,11 +58,6 @@ struct PublicReportsView: View {
             }
             .background(Color.appBackground)
             .navigationBarHidden(true)
-            
-            // --- MODIFICACIONES ---
-            // 1. Se eliminó el modificador .refreshable
-            
-            // 2. .onAppear ahora SIEMPRE refresca los datos
             .onAppear {
                 Task {
                     await viewModel.fetchPublicReports()
@@ -83,7 +74,7 @@ struct PublicReportsView: View {
     }
 }
 
-// La vista previa se mantiene igual.
+//preview con ia
 struct PublicReportsView_Previews: PreviewProvider {
     static var previews: some View {
         PublicReportsView()

@@ -8,21 +8,19 @@
 
 import SwiftUI
 
-// un componente de "tag" o "etiqueta" inteligente.
+// componente de tags
 // su color de fondo y de texto cambian automaticamente segun el contenido del texto.
-// esto permite mantener un estilo consistente para valores especificos en toda la app
-// (ej. severidades, categorias, etc.).
+
 struct TagComponent: View {
     
     // el texto que se muestra en el tag y que tambien determina su estilo.
     let text: String
     
-    // propiedades privadas para guardar el estilo, determinadas en el `init`.
+    // propiedades privadas para guardar el estilo, determinadas en el init
     private let backgroundColor: Color
     private let textColor: Color
 
     // el inicializador solo necesita el texto.
-    // la logica para elegir los colores se delega a la funcion `getstyle`.
     init(text: String) {
         self.text = text
         let style = Self.getStyle(for: text)
@@ -41,9 +39,8 @@ struct TagComponent: View {
             .cornerRadius(20)
     }
     
-    // actua como un diccionario de estilos: recibe un texto y devuelve los colores correctos.
-    // esto centraliza toda la logica de estilo en un solo lugar para facil mantenimiento.
-    // se asume que los colores (ej. `.severitysevere`) estan definidos en un `theme`.
+    // diccionario de estilos recibe un texto y devuelve los colores correctos.
+   
     private static func getStyle(for text: String) -> (backgroundColor: Color, textColor: Color) {
         switch text {
         // severidades

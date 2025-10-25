@@ -10,10 +10,8 @@ import SwiftUI
 
 struct OnboardingView: View {
     
-    // guarda en la memoria del dispositivo si el usuario ya ha visto el tutorial.
+   
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    
-    // controla la página actual del carrusel.
     @State private var currentPage = 0
     private let onboardingData = OnboardingData.screens
 
@@ -22,18 +20,14 @@ struct OnboardingView: View {
             Color.appBackground.ignoresSafeArea()
             
             VStack {
-                // --- el carrusel deslizable ---
                 TabView(selection: $currentPage) {
                     ForEach(onboardingData) { screen in
                         OnboardingScreenView(data: screen)
                             .tag(onboardingData.firstIndex(where: { $0.id == screen.id }) ?? 0)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never)) // estilo de paginación sin los puntos por defecto.
-                
-                // --- controles de navegación (puntos y botones) ---
+                .tabViewStyle(.page(indexDisplayMode: .never))
                 VStack(spacing: 20) {
-                    // puntos de navegación personalizados.
                     HStack(spacing: 8) {
                         ForEach(onboardingData.indices, id: \.self) { index in
                             Capsule()
@@ -43,7 +37,6 @@ struct OnboardingView: View {
                     }
                     .animation(.easeInOut, value: currentPage)
                     
-                    // botón principal que cambia en la última pantalla.
                     if currentPage == onboardingData.count - 1 {
                         PrimaryButtonComponent(title: "Comenzar", action: completeOnboarding)
                     } else {
@@ -55,7 +48,6 @@ struct OnboardingView: View {
         }
     }
     
-    // --- funciones de logica ---
     private func goToNextPage() {
         withAnimation {
             if currentPage < onboardingData.count - 1 {
@@ -70,7 +62,6 @@ struct OnboardingView: View {
 }
 
 
-// --- vista auxiliar para una sola pantalla del tutorial ---
 struct OnboardingScreenView: View {
     let data: OnboardingData
     
