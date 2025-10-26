@@ -1,4 +1,6 @@
 --------------------------- SPANISH -----------------------------------
+
+
 Guía de Despliegue:
 
 Requisito Indispensable: Tener un backend encendido 
