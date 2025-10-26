@@ -95,7 +95,6 @@ Crea un archivo llamado Mocks.swift DENTRO de tu carpeta RepNetTests y pega el c
 
 Ahora puedes escribir pruebas unitarias reales que inyectan los mocks en tus ViewModels. Pega el contenido de y en tus archivos de prueba.
 
-Ejemplo - LoginViewModelTests.swift:
 
 
 
